@@ -2,15 +2,297 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>歴史並べ替えテスト</title>
-</head>
-<body>
-<h1>歴史並べ替えテスト</h1>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中学受験 歴史並べ替え</title>
 
-<button onclick="alert('動作成功！')">
-ここを押す
+<style>
+body{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:#f4f6fb;
+  margin:0;
+  padding:15px;
+}
+
+.card{
+  max-width:700px;
+  margin:auto;
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,.12);
+}
+
+h1{
+  text-align:center;
+  font-size:40px;
+  margin:10px 0 20px;
+}
+
+#progress{
+  font-size:22px;
+  font-weight:bold;
+}
+
+#question{
+  font-size:28px;
+  margin:20px 0;
+}
+
+.choice{
+  width:100%;
+  font-size:24px;
+  padding:18px;
+  border:none;
+  border-radius:14px;
+  margin:10px 0;
+  background:#e8efff;
+}
+
+#selected{
+  min-height:80px;
+  font-size:24px;
+  padding:15px;
+  background:#fafafa;
+  border-radius:12px;
+  margin-top:15px;
+}
+
+#message{
+  font-size:24px;
+  font-weight:bold;
+  margin-top:20px;
+}
+
+.bigButton{
+  width:100%;
+  font-size:24px;
+  padding:18px;
+  border:none;
+  border-radius:14px;
+  background:#3366ff;
+  color:white;
+  margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>歴史並べ替え</h1>
+
+<div id="app"></div>
+
+</div>
+
+<script>
+
+const pool = [
+
+["鉄砲伝来","キリスト教伝来","桶狭間の戦い"],
+["日清戦争","下関条約","三国干渉"],
+["韓国併合","第一次世界大戦","米騒動"],
+["大塩平八郎の乱","天保の改革","黒船来航"],
+["関ヶ原の戦い","江戸幕府成立","武家諸法度"],
+["平安京遷都","遣唐使廃止","平将門の乱"],
+["応仁の乱","鉄砲伝来","キリスト教伝来"],
+["日露戦争","ポーツマス条約","韓国併合"],
+["満州事変","二・二六事件","国家総動員法"],
+["サンフランシスコ平和条約","東京五輪1964","大阪万博1970"],
+
+["大化の改新","壬申の乱","平城京遷都"],
+["承久の乱","御成敗式目","元寇"],
+["王政復古の大号令","戊辰戦争","版籍奉還"],
+["五箇条の御誓文","廃藩置県","学制発布"],
+["ペリー来航","日米和親条約","日米修好通商条約"],
+
+["自由民権運動","大日本帝国憲法","第一回帝国議会"],
+["ロシア革命","米騒動","普通選挙法"],
+["治安維持法","満州事変","二・二六事件"],
+["明治維新","廃藩置県","地租改正"],
+["下関条約","三国干渉","義和団事件"],
+
+["保元の乱","平治の乱","平清盛が太政大臣"],
+["平治の乱","源頼朝挙兵","鎌倉幕府成立"],
+["平城京遷都","墾田永年私財法","平安京遷都"],
+["征韓論","台湾出兵","江華島事件"],
+["ワシントン会議","治安維持法","金融恐慌"],
+
+["日中戦争","国家総動員法","太平洋戦争"],
+["冠位十二階","憲法十七条","大化の改新"],
+["足利義満","金閣建立","日明貿易"],
+["大阪冬の陣","大阪夏の陣","武家諸法度"],
+["鎌倉幕府成立","承久の乱","御成敗式目"]
+
+];
+
+function shuffle(array){
+ return [...array].sort(()=>Math.random()-0.5);
+}
+
+let problems = shuffle(pool).slice(0,10);
+let current = 0;
+let score = 0;
+let selected = [];
+let wrong = [];
+
+function renderQuestion(){
+
+selected=[];
+
+const q = problems[current];
+const display = shuffle(q);
+
+document.getElementById("app").innerHTML = `
+
+<div id="progress">
+問題 ${current+1} / 10
+</div>
+
+<div id="question">
+古い順にタップしてください
+</div>
+
+<div id="choices"></div>
+
+<h3>選んだ順</h3>
+<div id="selected"></div>
+
+`;
+
+const box = document.getElementById("choices");
+
+display.forEach(item=>{
+
+const btn = document.createElement("button");
+btn.className="choice";
+btn.textContent=item;
+
+btn.onclick = ()=>{
+
+if(selected.includes(item)) return;
+
+selected.push(item);
+
+document.getElementById("selected").innerHTML =
+selected.join(" → ");
+
+btn.disabled=true;
+
+if(selected.length===3){
+check();
+}
+
+};
+
+box.appendChild(btn);
+
+});
+
+}
+
+function check(){
+
+const correct = problems[current];
+
+setTimeout(()=>{
+
+if(JSON.stringify(selected)===JSON.stringify(correct)){
+
+alert("○ 正解");
+score++;
+
+}else{
+
+wrong.push({
+answer:selected,
+correct:correct
+});
+
+alert("× 正解\n\n"+correct.join(" → "));
+
+}
+
+current++;
+
+if(current<10){
+
+renderQuestion();
+
+}else{
+
+finish();
+
+}
+
+},200);
+
+}
+
+function finish(){
+
+let html = `
+<h2>${score} / 10 問正解！</h2>
+<button class="bigButton" onclick="restart()">
+もう一度挑戦
 </button>
+`;
+
+if(wrong.length){
+
+html += `
+<button class="bigButton" onclick="review()">
+間違えた問題を復習
+</button>
+`;
+
+}
+
+document.getElementById("app").innerHTML = html;
+
+}
+
+function review(){
+
+let html="<h2>復習</h2>";
+
+wrong.forEach((w,index)=>{
+
+html += `
+<p>
+<b>${index+1}問目</b><br>
+あなた：${w.answer.join(" → ")}<br>
+正解：${w.correct.join(" → ")}
+</p>
+`;
+
+});
+
+html += `
+<button class="bigButton" onclick="restart()">
+再挑戦
+</button>
+`;
+
+document.getElementById("app").innerHTML = html;
+
+}
+
+function restart(){
+
+problems = shuffle(pool).slice(0,10);
+current = 0;
+score = 0;
+wrong = [];
+
+renderQuestion();
+
+}
+
+renderQuestion();
+
+</script>
 
 </body>
 </html>
